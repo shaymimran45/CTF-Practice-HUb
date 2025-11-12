@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
+import { isAdmin } from "@/lib/problemsService";
 
 export default function AdminPage() {
   const [title, setTitle] = useState("");
@@ -18,6 +20,25 @@ export default function AdminPage() {
   const [fileSize, setFileSize] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAdminUser, setIsAdminUser] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const adminStatus = await isAdmin();
+      setIsAdminUser(adminStatus);
+      setLoading(false);
+      
+      // Redirect if not admin
+      if (!adminStatus) {
+        router.push("/login");
+      }
+    };
+    
+    checkAdmin();
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,6 +96,33 @@ export default function AdminPage() {
     }
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen py-8 flex items-center justify-center">
+        <div className="text-xl text-gray-600">Checking admin access...</div>
+      </div>
+    );
+  }
+
+  // Show access denied if not admin
+  if (!isAdminUser) {
+    return (
+      <div className="min-h-screen py-8 flex items-center justify-center">
+        <div className="text-center bg-white p-8 rounded-xl shadow-lg border border-gray-200 max-w-md w-full mx-4">
+          <h1 className="text-3xl font-bold text-red-600 mb-4">Access Denied</h1>
+          <p className="text-gray-600 mb-6">You do not have permission to access the admin dashboard.</p>
+          <button 
+            onClick={() => router.push("/login")}
+            className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -83,14 +131,14 @@ export default function AdminPage() {
           <p className="text-gray-600">Upload and manage CTF problems</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
             <h2 className="text-xl font-bold text-gray-900">Upload New Problem</h2>
           </div>
           
           <div className="p-6">
             {message && (
-              <div className={`mb-6 p-4 rounded-lg ${message.includes('Error') ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+              <div className={`mb-6 p-4 rounded-lg ${message.includes('Error') ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-green-100 text-green-800 border border-green-200'}`}>
                 {message}
               </div>
             )}
@@ -106,7 +154,7 @@ export default function AdminPage() {
                     id="title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     required
                   />
                 </div>
@@ -119,7 +167,7 @@ export default function AdminPage() {
                     id="category"
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   >
                     <option value="web">Web Exploitation</option>
                     <option value="crypto">Cryptography</option>
@@ -138,7 +186,7 @@ export default function AdminPage() {
                     id="difficulty"
                     value={difficulty}
                     onChange={(e) => setDifficulty(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   >
                     <option value="Easy">Easy</option>
                     <option value="Medium">Medium</option>
@@ -157,7 +205,7 @@ export default function AdminPage() {
                     onChange={(e) => setPoints(parseInt(e.target.value))}
                     min="10"
                     max="1000"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     required
                   />
                 </div>
@@ -173,7 +221,7 @@ export default function AdminPage() {
                     onChange={(e) => setFlag(e.target.value)}
                     pattern="WOW\{[^}]+\}"
                     title="Flag must be in the format WOW{flag_content}"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     required
                   />
                   <p className="mt-1 text-sm text-gray-500">Must follow the format: WOW&#123;flag_content&#125;</p>
@@ -189,7 +237,7 @@ export default function AdminPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={6}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   required
                 ></textarea>
                 <p className="mt-1 text-sm text-gray-500">Provide a detailed description of the challenge including any background information, objectives, and instructions.</p>
@@ -207,7 +255,7 @@ export default function AdminPage() {
                       id="hint1"
                       value={hint1}
                       onChange={(e) => setHint1(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       placeholder="First hint to help users solve the challenge"
                     />
                   </div>
@@ -221,7 +269,7 @@ export default function AdminPage() {
                       id="hint2"
                       value={hint2}
                       onChange={(e) => setHint2(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       placeholder="Second hint for additional guidance"
                     />
                   </div>
@@ -235,7 +283,7 @@ export default function AdminPage() {
                       id="hint3"
                       value={hint3}
                       onChange={(e) => setHint3(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       placeholder="Third hint for more advanced users"
                     />
                   </div>
@@ -254,7 +302,7 @@ export default function AdminPage() {
                       id="fileName"
                       value={fileName}
                       onChange={(e) => setFileName(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       placeholder="challenge.zip"
                     />
                   </div>
@@ -268,7 +316,7 @@ export default function AdminPage() {
                       id="fileUrl"
                       value={fileUrl}
                       onChange={(e) => setFileUrl(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       placeholder="https://example.com/challenge.zip"
                     />
                   </div>
@@ -282,7 +330,7 @@ export default function AdminPage() {
                       id="fileSize"
                       value={fileSize}
                       onChange={(e) => setFileSize(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       placeholder="1.2 MB"
                     />
                   </div>
@@ -294,7 +342,7 @@ export default function AdminPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                  className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
                 >
                   {isSubmitting ? "Uploading..." : "Upload Problem"}
                 </button>
@@ -305,7 +353,7 @@ export default function AdminPage() {
         
         <div className="mt-8 bg-gradient-to-r from-gray-900 to-blue-900 rounded-xl shadow-lg p-8 text-white">
           <h2 className="text-2xl font-bold mb-4">Database Setup Instructions</h2>
-          <p className="text-xl text-gray-200 mb-6">
+          <p className="text-xl text-gray-200 mb-6 leading-relaxed">
             To initialize your Supabase database, copy and paste the contents of the SUPABASE_INIT.sql file into your Supabase SQL editor.
           </p>
           <div className="bg-gray-800 rounded-lg p-6">

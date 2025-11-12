@@ -90,6 +90,23 @@ export async function getCurrentUser() {
   }
 }
 
+// Check if current user is admin
+export async function isAdmin() {
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    
+    if (error || !data.user) {
+      return false;
+    }
+    
+    // Check if user has admin role in metadata
+    return data.user.user_metadata?.role === 'admin';
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return false;
+  }
+}
+
 export async function getProblems() {
   try {
     const { data, error } = await supabase

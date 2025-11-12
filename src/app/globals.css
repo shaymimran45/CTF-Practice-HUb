@@ -3,11 +3,18 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --card-background: #ffffff;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  --border-color: #e5e7eb;
+  --hover-background: #f9fafb;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card-background: var(--card-background);
+  --color-border: var(--border-color);
+  --color-hover: var(--hover-background);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -16,11 +23,100 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --card-background: #1f1f1f;
+    --card-shadow: rgba(0, 0, 0, 0.3);
+    --border-color: #374151;
+    --hover-background: #1a1a1a;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+}
+
+/* Improve text contrast and readability */
+.text-gray-600 {
+  color: #4b5563;
+}
+
+.text-gray-700 {
+  color: #374151;
+}
+
+@media (prefers-color-scheme: dark) {
+  .text-gray-600 {
+    color: #9ca3af;
+  }
+  
+  .text-gray-700 {
+    color: #d1d5db;
+  }
+}
+
+/* Fix text overlapping issues */
+.prose {
+  max-width: none;
+}
+
+.prose p {
+  margin-bottom: 1rem;
+  line-height: 1.75;
+}
+
+/* Improve card styling */
+.bg-white {
+  background: var(--card-background);
+}
+
+.border-gray-200 {
+  border-color: var(--border-color);
+}
+
+/* Improve link styling */
+.text-blue-600 {
+  color: #2563eb;
+}
+
+.hover\:text-blue-800:hover {
+  color: #1e40af;
+}
+
+@media (prefers-color-scheme: dark) {
+  .text-blue-600 {
+    color: #60a5fa;
+  }
+  
+  .hover\:text-blue-800:hover {
+    color: #3b82f6;
+  }
+}
+
+/* Improve button styling */
+.transition-colors {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Fix z-index issues */
+.relative {
+  position: relative;
+}
+
+/* Improve focus states */
+.focus\:outline-none:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.focus\:ring-2:focus {
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+.focus\:ring-blue-500:focus {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(59 130 246 / var(--tw-ring-opacity));
 }
